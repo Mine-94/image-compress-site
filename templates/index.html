@@ -1,0 +1,143 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="hero container">
+  <span class="eyebrow">TOOLS / IMAGE</span>
+  <h1>이미지 용량 줄이기</h1>
+  <p class="subtitle">사진을 올리면 몇 초 만에 압축하고 크기도 바꿔드려요. 회원가입도, 설치도 필요 없어요.</p>
+
+  <div id="drop-zone" class="drop-zone">
+    <input type="file" id="file-input" accept="image/jpeg,image/png,image/webp" hidden>
+    <div id="drop-zone-empty">
+      <div class="drop-icon">🖼️</div>
+      <p><strong>이미지를 여기로 끌어다 놓거나</strong></p>
+      <button type="button" id="browse-btn" class="btn btn-primary">파일 선택</button>
+      <p class="hint">JPG · PNG · WEBP, 최대 30MB까지 지원</p>
+    </div>
+
+    <div id="file-selected" class="hidden">
+      <div class="file-info">
+        <img id="preview-thumb" class="preview-thumb" alt="미리보기">
+        <div>
+          <p id="file-name" class="file-name"></p>
+          <p id="file-size" class="file-size"></p>
+        </div>
+      </div>
+
+      <div class="quality-options">
+        <p class="option-label">크기 조절</p>
+        <label class="quality-option">
+          <input type="radio" name="resize" value="100" checked>
+          <span>원본 유지 <em>(100%)</em></span>
+        </label>
+        <label class="quality-option">
+          <input type="radio" name="resize" value="75">
+          <span>75% <em>(약간 축소)</em></span>
+        </label>
+        <label class="quality-option">
+          <input type="radio" name="resize" value="50">
+          <span>50% <em>(절반 축소)</em></span>
+        </label>
+        <label class="quality-option">
+          <input type="radio" name="resize" value="25">
+          <span>25% <em>(많이 축소)</em></span>
+        </label>
+      </div>
+
+      <div class="quality-options">
+        <p class="option-label">압축 품질</p>
+        <label class="quality-option">
+          <input type="radio" name="quality" value="high">
+          <span>고화질 <em>(용량 큼)</em></span>
+        </label>
+        <label class="quality-option">
+          <input type="radio" name="quality" value="medium" checked>
+          <span>권장 <em>(균형있는 압축)</em></span>
+        </label>
+        <label class="quality-option">
+          <input type="radio" name="quality" value="low">
+          <span>최대 압축 <em>(용량 작음)</em></span>
+        </label>
+      </div>
+
+      <button type="button" id="compress-btn" class="btn btn-primary btn-large">이미지 압축하기</button>
+      <button type="button" id="reset-btn" class="btn btn-text">다른 파일 선택</button>
+    </div>
+
+    <div id="loading" class="hidden">
+      <div class="spinner"></div>
+      <p>처리하는 중입니다...</p>
+    </div>
+
+    <div id="result" class="hidden">
+      <div class="result-icon">✅</div>
+      <p class="result-title">처리가 완료되었습니다!</p>
+      <div class="result-stats">
+        <div><span id="original-size"></span><small>원본</small></div>
+        <div class="arrow">→</div>
+        <div><span id="compressed-size"></span><small>압축 후</small></div>
+        <div class="ratio-badge" id="ratio-badge"></div>
+      </div>
+      <p class="dimension-note" id="dimension-note"></p>
+      <a id="download-link" class="btn btn-primary btn-large" href="#">압축된 이미지 다운로드</a>
+      <button type="button" id="reset-btn-2" class="btn btn-text">다른 파일 압축하기</button>
+    </div>
+
+    <div id="error" class="hidden">
+      <p class="error-text" id="error-text"></p>
+      <button type="button" id="reset-btn-3" class="btn btn-text">다시 시도</button>
+    </div>
+  </div>
+
+  <div class="ad-slot" id="ad-slot-below-tool"></div>
+</section>
+
+<section class="features container">
+  <div class="feature">
+    <h3>🔒 안전한 처리</h3>
+    <p>업로드된 이미지는 처리 후 서버에서 자동으로 삭제됩니다.</p>
+  </div>
+  <div class="feature">
+    <h3>⚡ 빠른 속도</h3>
+    <p>대부분의 이미지는 몇 초 안에 처리가 완료됩니다.</p>
+  </div>
+  <div class="feature">
+    <h3>💯 무료</h3>
+    <p>회원가입, 워터마크, 사용 횟수 제한 없이 무료로 사용하세요.</p>
+  </div>
+</section>
+
+<section class="faq container">
+  <h2>자주 묻는 질문</h2>
+  <details>
+    <summary>어떤 이미지 형식을 지원하나요?</summary>
+    <p>JPG, PNG, WEBP 형식을 지원합니다. 원본 형식 그대로 압축된 파일을 받으실 수 있어요.</p>
+  </details>
+  <details>
+    <summary>크기 조절과 압축 품질은 뭐가 다른가요?</summary>
+    <p>크기 조절은 이미지의 가로·세로 픽셀 수를 줄이는 것이고, 압축 품질은 같은 크기에서 파일 용량을 얼마나 줄일지 정하는 옵션이에요. 둘 다 적용하면 용량을 더 크게 줄일 수 있습니다.</p>
+  </details>
+  <details>
+    <summary>업로드한 이미지는 안전한가요?</summary>
+    <p>처리가 끝나고 다운로드가 완료되면 파일은 서버에서 자동 삭제됩니다. 자세한 내용은 개인정보처리방침을 참고하세요.</p>
+  </details>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  const fileInput = document.getElementById('file-input');
+  const preview = document.getElementById('preview-thumb');
+  fileInput.addEventListener('change', () => {
+    const file = fileInput.files[0];
+    if (file) preview.src = URL.createObjectURL(file);
+  });
+  document.getElementById('drop-zone').addEventListener('drop', (e) => {
+    const file = e.dataTransfer.files[0];
+    if (file) preview.src = URL.createObjectURL(file);
+  });
+});
+</script>
+{% endblock %}
+
+{% block title %}이미지압축 - 무료로 이미지 용량 줄이기 & 리사이즈{% endblock %}

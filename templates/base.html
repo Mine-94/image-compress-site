@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{% block title %}이미지압축 - 무료 이미지 용량 줄이기 & 리사이즈{% endblock %}</title>
+<meta name="description" content="{% block description %}브라우저에서 바로 이미지 용량을 줄이고 크기도 조절하세요. 회원가입 없이, 설치 없이 몇 초 만에 JPG·PNG·WEBP를 압축합니다.{% endblock %}">
+<link rel="canonical" href="{{ request.base_url }}">
+<meta property="og:title" content="{% block og_title %}이미지압축 - 무료 이미지 용량 줄이기 & 리사이즈{% endblock %}">
+<meta property="og:description" content="{% block og_description %}회원가입 없이 무료로 이미지 용량을 줄이고 크기를 바꿔보세요.{% endblock %}">
+<meta property="og:type" content="website">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@400;500;600&family=Noto+Sans+KR:wght@400;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8602848692420724" crossorigin="anonymous"></script>
+</head>
+<body>
+<header class="site-header">
+  <div class="header-inner">
+    <a class="logo" href="{{ url_for('index') }}">이미지<span>압축</span></a>
+    <p class="tagline">A Lichtbringer Tool</p>
+    <nav class="nav">
+      <a href="{{ url_for('index') }}">홈</a>
+      <a href="{{ url_for('about') }}">소개</a>
+      <a href="{{ url_for('privacy') }}">개인정보처리방침</a>
+      <a href="{{ url_for('terms') }}">이용약관</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+{% block content %}{% endblock %}
+</main>
+
+<footer class="site-footer">
+  <div class="footer-inner">
+    <p>&copy; {{ 2026 }} 이미지압축. 모든 파일은 처리 후 자동 삭제됩니다.</p>
+    <div class="footer-links">
+      <a href="{{ url_for('about') }}">소개</a>
+      <a href="{{ url_for('privacy') }}">개인정보처리방침</a>
+      <a href="{{ url_for('terms') }}">이용약관</a>
+    </div>
+  </div>
+  <p class="footer-brand">Crafted by <a href="https://lichtbringer.online/" target="_blank" rel="noopener">Lichtbringer</a> · Also try <a href="https://pdf-compress-site-npsq.onrender.com/" target="_blank" rel="noopener">PDF압축</a></p>
+</footer>
+<script src="{{ url_for('static', filename='js/main.js') }}"></script>
+{% block scripts %}{% endblock %}
+</body>
+</html>
