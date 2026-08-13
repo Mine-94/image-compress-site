@@ -284,11 +284,14 @@ h1, h2, h3 {
   background: var(--border);
   border: 1px solid var(--border);
   padding: 0;
-  margin: 0 20px;
+  width: calc(100% - 40px);
+  max-width: 780px;
+  margin: 0 auto;
 }
 .feature {
   background: var(--cream);
   padding: 28px 22px;
+  text-align: center;
 }
 .feature h3 {
   margin: 0 0 10px;
