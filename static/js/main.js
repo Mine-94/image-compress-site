@@ -1,4 +1,14 @@
 (function () {
+  const I18N = window.I18N || {
+    invalid_file: "JPG, PNG, WEBP 파일만 업로드할 수 있습니다.",
+    generic_error: "처리 중 오류가 발생했습니다.",
+    network_error: "네트워크 오류가 발생했습니다. 다시 시도해주세요.",
+    already_optimized: "이미 최적화됨",
+    ratio_suffix: "% 감소",
+    dimension_note: "크기: {orig} → {new}",
+    dimension_no_change: "크기: {orig} (변경 없음)",
+  };
+
   const dropZone = document.getElementById("drop-zone");
   if (!dropZone) return;
 
@@ -53,7 +63,7 @@
   function onFileChosen(file) {
     if (!file) return;
     if (!ALLOWED_TYPES.includes(file.type)) {
-      errorTextEl.textContent = "JPG, PNG, WEBP 파일만 업로드할 수 있습니다.";
+      errorTextEl.textContent = I18N.invalid_file;
       showView(errorView);
       return;
     }
@@ -98,6 +108,7 @@
     formData.append("file", currentFile);
     formData.append("quality", quality);
     formData.append("resize", resize);
+    formData.append("lang", window.APP_LANG || "ko");
 
     try {
       const res = await fetch("/api/process", {
@@ -107,7 +118,7 @@
       const data = await res.json();
 
       if (!res.ok) {
-        errorTextEl.textContent = data.error || "처리 중 오류가 발생했습니다.";
+        errorTextEl.textContent = data.error || I18N.generic_error;
         showView(errorView);
         return;
       }
@@ -115,16 +126,18 @@
       originalSizeEl.textContent = data.original_size_human;
       compressedSizeEl.textContent = data.compressed_size_human;
       ratioBadgeEl.textContent = data.used_original
-        ? "이미 최적화됨"
-        : `${data.ratio}% 감소`;
+        ? I18N.already_optimized
+        : `${data.ratio}${I18N.ratio_suffix}`;
       dimensionNoteEl.textContent =
         data.original_dimensions === data.new_dimensions
-          ? `크기: ${data.original_dimensions} (변경 없음)`
-          : `크기: ${data.original_dimensions} → ${data.new_dimensions}`;
+          ? I18N.dimension_no_change.replace("{orig}", data.original_dimensions)
+          : I18N.dimension_note
+              .replace("{orig}", data.original_dimensions)
+              .replace("{new}", data.new_dimensions);
       downloadLink.href = data.download_url;
       showView(resultView);
     } catch (err) {
-      errorTextEl.textContent = "네트워크 오류가 발생했습니다. 다시 시도해주세요.";
+      errorTextEl.textContent = I18N.network_error;
       showView(errorView);
     }
   });

@@ -10,11 +10,36 @@ from flask import (
     send_file,
     jsonify,
     after_this_request,
+    abort,
+    Response,
+    url_for,
 )
 from werkzeug.utils import secure_filename
 from PIL import Image, ImageOps
 
+from translations import TRANSLATIONS
+
 app = Flask(__name__)
+
+LANGS = ("ko", "en", "de")
+ALT_LANGS = ("en", "de")  # prefixed languages; ko is the default, unprefixed
+LANG_NAMES = {"ko": "한국어", "en": "English", "de": "Deutsch"}
+
+
+def render_page(template, page, lang="ko"):
+    if lang not in LANGS:
+        abort(404)
+    t = TRANSLATIONS[lang]
+    return render_template(template, t=t, lang=lang, page=page, lang_names=LANG_NAMES)
+
+
+def lang_url(endpoint, target_lang):
+    if target_lang == "ko":
+        return url_for(endpoint)
+    return url_for(endpoint, lang=target_lang)
+
+
+app.jinja_env.globals["lang_url"] = lang_url
 
 MAX_CONTENT_LENGTH = 30 * 1024 * 1024  # 30MB
 app.config["MAX_CONTENT_LENGTH"] = MAX_CONTENT_LENGTH
@@ -87,33 +112,71 @@ def process_image(input_path: Path, output_path: Path, quality: str, resize: str
 
 
 @app.route("/")
-def index():
-    return render_template("index.html")
+@app.route("/<lang>/")
+def index(lang="ko"):
+    return render_page("index.html", "", lang)
 
 
 @app.route("/about")
-def about():
-    return render_template("about.html")
+@app.route("/<lang>/about")
+def about(lang="ko"):
+    return render_page("about.html", "about", lang)
 
 
 @app.route("/privacy")
-def privacy():
-    return render_template("privacy.html")
+@app.route("/<lang>/privacy")
+def privacy(lang="ko"):
+    return render_page("privacy.html", "privacy", lang)
 
 
 @app.route("/terms")
-def terms():
-    return render_template("terms.html")
+@app.route("/<lang>/terms")
+def terms(lang="ko"):
+    return render_page("terms.html", "terms", lang)
 
 
 @app.route("/robots.txt")
 def robots():
-    return app.send_static_file("robots.txt")
+    base = request.host_url.rstrip("/")
+    body = (
+        "User-agent: *\n"
+        "Allow: /\n\n"
+        f"Sitemap: {base}/sitemap.xml\n"
+    )
+    return Response(body, mimetype="text/plain")
 
 
 @app.route("/sitemap.xml")
 def sitemap():
-    return app.send_static_file("sitemap.xml")
+    base = request.host_url.rstrip("/")
+    pages = ["", "about", "privacy", "terms"]
+    all_langs = ("ko",) + ALT_LANGS
+
+    def url_for_lang(page, lang):
+        prefix = "" if lang == "ko" else f"/{lang}"
+        if page == "":
+            return f"{base}{prefix}/" if prefix else f"{base}/"
+        return f"{base}{prefix}/{page}"
+
+    entries = []
+    for page in pages:
+        links = "".join(
+            f'<xhtml:link rel="alternate" hreflang="{l}" href="{url_for_lang(page, l)}"/>'
+            for l in all_langs
+        )
+        for lang in all_langs:
+            entries.append(
+                f"<url><loc>{url_for_lang(page, lang)}</loc>{links}</url>"
+            )
+
+    xml = (
+        '<?xml version="1.0" encoding="UTF-8"?>\n'
+        '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" '
+        'xmlns:xhtml="http://www.w3.org/1999/xhtml">\n'
+        + "\n".join(entries)
+        + "\n</urlset>"
+    )
+    return Response(xml, mimetype="application/xml")
 
 
 @app.route("/ads.txt")
@@ -123,18 +186,23 @@ def ads():
 
 @app.route("/api/process", methods=["POST"])
 def api_process():
+    lang = request.form.get("lang", "ko")
+    if lang not in LANGS:
+        lang = "ko"
+    msgs = TRANSLATIONS[lang]["js"]
+
     if "file" not in request.files:
-        return jsonify({"error": "파일이 없습니다."}), 400
+        return jsonify({"error": msgs["no_file"]}), 400
 
     file = request.files["file"]
     quality = request.form.get("quality", "medium")
     resize = request.form.get("resize", "100")
 
     if file.filename == "":
-        return jsonify({"error": "파일이 없습니다."}), 400
+        return jsonify({"error": msgs["no_file"]}), 400
 
     if not allowed_file(file.filename):
-        return jsonify({"error": "JPG, PNG, WEBP 파일만 업로드할 수 있습니다."}), 400
+        return jsonify({"error": msgs["invalid_file"]}), 400
 
     if quality not in QUALITY_PRESETS:
         quality = "medium"

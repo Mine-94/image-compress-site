@@ -89,6 +89,20 @@ h1, h2, h3 {
   text-transform: uppercase;
 }
 .nav a:hover { color: var(--gold); }
+.lang-switch {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  color: var(--ink-muted);
+}
+.lang-switch a {
+  color: var(--ink-muted);
+  text-decoration: none;
+  font-size: 11px;
+  font-weight: 600;
+}
+.lang-switch a.active { color: var(--ink); text-decoration: underline; }
+.lang-switch a:hover { color: var(--gold); }
 
 /* Hero */
 .hero {
